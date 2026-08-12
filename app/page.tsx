@@ -78,6 +78,15 @@ export default function HomePage() {
   const [equipmentList, setEquipmentList] = useState<EquipmentCardItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(12);
+
+  // Reset page to 1 when filters or search change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter, roomFilter]);
+
   // ─── Analytics Dashboard Logic ─────────────────────────
   const dashboardStats = useMemo(() => {
     let operationalCount = 0;
@@ -209,6 +218,11 @@ export default function HomePage() {
           item.room.toLowerCase().includes(q);
     return matchesStatus && matchesRoom && matchesSearch;
   });
+
+  // Pagination Logic
+  const totalPages = Math.ceil(filteredEquipment.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedEquipment = filteredEquipment.slice(startIndex, startIndex + itemsPerPage);
 
   const getStatusBadgeStyles = (status: "Baik" | "Rusak" | "Kalibrasi" | string) => {
     switch (status) {
@@ -424,9 +438,10 @@ export default function HomePage() {
             </p>
           </div>
         ) : filteredEquipment.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {filteredEquipment.map((item) => (
-              <Link
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {paginatedEquipment.map((item) => (
+                <Link
                 key={item.id}
                 href={`/equipment/${item.id}`}
                 className="block group h-full"
@@ -500,6 +515,51 @@ export default function HomePage() {
               </Link>
             ))}
           </div>
+          
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-6 border-t border-slate-200">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-slate-500">Tampilkan</span>
+                <select
+                  value={itemsPerPage}
+                  onChange={(e) => {
+                    setItemsPerPage(Number(e.target.value));
+                    setCurrentPage(1);
+                  }}
+                  className="px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm cursor-pointer"
+                >
+                  <option value={12}>12</option>
+                  <option value={24}>24</option>
+                  <option value={48}>48</option>
+                </select>
+                <span className="text-sm font-medium text-slate-500">per halaman</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 rounded-xl border border-slate-300 bg-white text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-colors"
+                >
+                  Sebelumnya
+                </button>
+                <span className="text-sm font-semibold text-slate-600 px-2">
+                  Hal {currentPage} dari {totalPages}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 rounded-xl border border-slate-300 bg-white text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-colors"
+                >
+                  Selanjutnya
+                </button>
+              </div>
+            </div>
+          )}
+        </>
         ) : (
           /* Empty State UI for Search / Filter */
           <div className="bg-white rounded-3xl border border-slate-200/80 p-12 text-center max-w-lg mx-auto shadow-xs my-8">
