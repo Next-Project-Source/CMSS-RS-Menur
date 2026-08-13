@@ -24,7 +24,7 @@ export const EquipmentDetailsGrid: React.FC<EquipmentDetailsGridProps> = ({
   const handleLaporIpsClick = () => {
     const rawMessage = `Halo Tim IPS, saya ingin melaporkan kendala pada alat *${equipmentName}* (No. Aset: ${details.noAset}, Ruangan: ${details.ruangan}). Mohon bantuannya untuk pengecekan.`;
     const encodedMessage = encodeURIComponent(rawMessage);
-    const waUrl = `https://wa.me/6281234567890?text=${encodedMessage}`;
+    const waUrl = `https://wa.me/6281334062046?text=${encodedMessage}`;
     window.open(waUrl, "_blank", "noopener,noreferrer");
   };
 
