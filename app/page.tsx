@@ -52,7 +52,7 @@ type CalibrationStatus = 'SAFE' | 'WARNING' | 'EXPIRED' | 'UNKNOWN';
 
 const getCalibrationStatus = (calibrationDateStr: string): CalibrationStatus => {
   if (!calibrationDateStr || calibrationDateStr === "-") return 'UNKNOWN';
-  
+
   const lastCalDate = new Date(calibrationDateStr);
   if (isNaN(lastCalDate.getTime())) return 'UNKNOWN';
 
@@ -80,7 +80,7 @@ export default function HomePage() {
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(12);
+  const [itemsPerPage, setItemsPerPage] = useState(6);
 
   // Reset page to 1 when filters or search change
   useEffect(() => {
@@ -213,9 +213,9 @@ export default function HomePage() {
       q === ""
         ? true
         : item.id.toLowerCase().includes(q) ||
-          item.name.toLowerCase().includes(q) ||
-          item.serialNumber.toLowerCase().includes(q) ||
-          item.room.toLowerCase().includes(q);
+        item.name.toLowerCase().includes(q) ||
+        item.serialNumber.toLowerCase().includes(q) ||
+        item.room.toLowerCase().includes(q);
     return matchesStatus && matchesRoom && matchesSearch;
   });
 
@@ -442,124 +442,125 @@ export default function HomePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {paginatedEquipment.map((item) => (
                 <Link
-                key={item.id}
-                href={`/equipment/${item.id}`}
-                className="block group h-full"
-              >
-                <div className="h-full bg-white hover:bg-slate-50 border border-slate-200/80 hover:border-blue-300 rounded-2xl p-4 sm:p-5 shadow-2xs hover:shadow-md transition-all duration-150 flex items-center justify-between cursor-pointer overflow-hidden">
-                  <div className="flex-1 min-w-0 pr-3 flex items-start gap-3 sm:gap-4">
-                    {/* Equipment Photo Thumbnail */}
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border border-slate-200/80 bg-slate-50 p-1.5 shrink-0 overflow-hidden flex items-center justify-center shadow-2xs">
-                      <img
-                        src={item.imageUrl}
-                        alt={item.name}
-                        className="w-full h-full object-contain rounded-xl"
-                        onError={(e) => {
-                          e.currentTarget.src = "/placeholder-cpap.jpg";
-                        }}
-                      />
+                  key={item.id}
+                  href={`/equipment/${item.id}`}
+                  className="block group h-full"
+                >
+                  <div className="h-full bg-white hover:bg-slate-50 border border-slate-200/80 hover:border-blue-300 rounded-2xl p-4 sm:p-5 shadow-2xs hover:shadow-md transition-all duration-150 flex items-center justify-between cursor-pointer overflow-hidden">
+                    <div className="flex-1 min-w-0 pr-3 flex items-start gap-3 sm:gap-4">
+                      {/* Equipment Photo Thumbnail */}
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border border-slate-200/80 bg-slate-50 p-1.5 shrink-0 overflow-hidden flex items-center justify-center shadow-2xs">
+                        <img
+                          src={item.imageUrl}
+                          alt={item.name}
+                          className="w-full h-full object-contain rounded-xl"
+                          onError={(e) => {
+                            e.currentTarget.src = "/placeholder-cpap.jpg";
+                          }}
+                        />
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1.5">
+                          <span
+                            className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border uppercase ${getStatusBadgeStyles(
+                              item.status
+                            )}`}
+                          >
+                            {item.status}
+                          </span>
+                          <span className="text-xs font-mono font-semibold text-slate-500">
+                            ID: {item.id}
+                          </span>
+                        </div>
+                        <h3 className="text-base font-extrabold text-slate-900 group-hover:text-blue-600 transition-colors truncate">
+                          {item.name}
+                        </h3>
+                        <p className="text-xs text-slate-500 mt-1 font-medium truncate">
+                          Ruangan:{" "}
+                          <span className="font-semibold text-slate-700">
+                            {item.room}
+                          </span>{" "}
+                          • SN:{" "}
+                          <span className="font-mono text-slate-700">
+                            {item.serialNumber}
+                          </span>
+                        </p>
+
+                        {/* REQUIREMENT 2: ENHANCED CARDS - Calibration date row */}
+                        <div className="mt-2 pt-1.5 border-t border-slate-100 flex items-center gap-1.5 text-[11px] text-slate-500">
+                          <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <span>Kalibrasi:</span>
+                          <span className="font-semibold font-mono text-slate-700">
+                            {item.tglKalibrasi}
+                          </span>
+                          {getCalibrationStatus(item.tglKalibrasi) === 'WARNING' && (
+                            <span className="bg-yellow-100 text-yellow-800 text-[10px] font-bold px-2 py-0.5 rounded-full ml-auto whitespace-nowrap">
+                              ⚠️ H-3 Bulan
+                            </span>
+                          )}
+                          {getCalibrationStatus(item.tglKalibrasi) === 'EXPIRED' && (
+                            <span className="bg-red-100 text-red-800 text-[10px] font-bold px-2 py-0.5 rounded-full ml-auto whitespace-nowrap">
+                              🚨 Kedaluwarsa
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <span
-                          className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border uppercase ${getStatusBadgeStyles(
-                            item.status
-                          )}`}
-                        >
-                          {item.status}
-                        </span>
-                        <span className="text-xs font-mono font-semibold text-slate-500">
-                          ID: {item.id}
-                        </span>
-                      </div>
-                      <h3 className="text-base font-extrabold text-slate-900 group-hover:text-blue-600 transition-colors truncate">
-                        {item.name}
-                      </h3>
-                      <p className="text-xs text-slate-500 mt-1 font-medium truncate">
-                        Ruangan:{" "}
-                        <span className="font-semibold text-slate-700">
-                          {item.room}
-                        </span>{" "}
-                        • SN:{" "}
-                        <span className="font-mono text-slate-700">
-                          {item.serialNumber}
-                        </span>
-                      </p>
-
-                      {/* REQUIREMENT 2: ENHANCED CARDS - Calibration date row */}
-                      <div className="mt-2 pt-1.5 border-t border-slate-100 flex items-center gap-1.5 text-[11px] text-slate-500">
-                        <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                        <span>Kalibrasi:</span>
-                        <span className="font-semibold font-mono text-slate-700">
-                          {item.tglKalibrasi}
-                        </span>
-                        {getCalibrationStatus(item.tglKalibrasi) === 'WARNING' && (
-                          <span className="bg-yellow-100 text-yellow-800 text-[10px] font-bold px-2 py-0.5 rounded-full ml-auto whitespace-nowrap">
-                            ⚠️ H-3 Bulan
-                          </span>
-                        )}
-                        {getCalibrationStatus(item.tglKalibrasi) === 'EXPIRED' && (
-                          <span className="bg-red-100 text-red-800 text-[10px] font-bold px-2 py-0.5 rounded-full ml-auto whitespace-nowrap">
-                            🚨 Kedaluwarsa
-                          </span>
-                        )}
-                      </div>
+                    <div className="flex-shrink-0 ml-2 sm:ml-4 w-8 h-8 rounded-full bg-slate-100 group-hover:bg-blue-100 flex items-center justify-center text-slate-400 group-hover:text-blue-600 transition-colors">
+                      <ChevronRight className="w-4 h-4" />
                     </div>
                   </div>
-
-                  <div className="flex-shrink-0 ml-2 sm:ml-4 w-8 h-8 rounded-full bg-slate-100 group-hover:bg-blue-100 flex items-center justify-center text-slate-400 group-hover:text-blue-600 transition-colors">
-                    <ChevronRight className="w-4 h-4" />
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-          
-          {/* Pagination Controls */}
-          {totalPages > 1 && (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-6 border-t border-slate-200">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-slate-500">Tampilkan</span>
-                <select
-                  value={itemsPerPage}
-                  onChange={(e) => {
-                    setItemsPerPage(Number(e.target.value));
-                    setCurrentPage(1);
-                  }}
-                  className="px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm cursor-pointer"
-                >
-                  <option value={12}>12</option>
-                  <option value={24}>24</option>
-                  <option value={48}>48</option>
-                </select>
-                <span className="text-sm font-medium text-slate-500">per halaman</span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                  disabled={currentPage === 1}
-                  className="px-4 py-2 rounded-xl border border-slate-300 bg-white text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-colors"
-                >
-                  Sebelumnya
-                </button>
-                <span className="text-sm font-semibold text-slate-600 px-2">
-                  Hal {currentPage} dari {totalPages}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                  disabled={currentPage === totalPages}
-                  className="px-4 py-2 rounded-xl border border-slate-300 bg-white text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-colors"
-                >
-                  Selanjutnya
-                </button>
-              </div>
+                </Link>
+              ))}
             </div>
-          )}
-        </>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-6 border-t border-slate-200">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-slate-500">Tampilkan</span>
+                  <select
+                    value={itemsPerPage}
+                    onChange={(e) => {
+                      setItemsPerPage(Number(e.target.value));
+                      setCurrentPage(1);
+                    }}
+                    className="px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm cursor-pointer"
+                  >
+                    <option value={6}>6</option>
+                    <option value={12}>12</option>
+                    <option value={24}>24</option>
+                    <option value={48}>48</option>
+                  </select>
+                  <span className="text-sm font-medium text-slate-500">per halaman</span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className="px-4 py-2 rounded-xl border border-slate-300 bg-white text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-colors"
+                  >
+                    Sebelumnya
+                  </button>
+                  <span className="text-sm font-semibold text-slate-600 px-2">
+                    Hal {currentPage} dari {totalPages}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className="px-4 py-2 rounded-xl border border-slate-300 bg-white text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-colors"
+                  >
+                    Selanjutnya
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         ) : (
           /* Empty State UI for Search / Filter */
           <div className="bg-white rounded-3xl border border-slate-200/80 p-12 text-center max-w-lg mx-auto shadow-xs my-8">
